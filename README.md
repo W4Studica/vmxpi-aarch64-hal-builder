@@ -34,3 +34,11 @@ Installed files land in `/usr/local/lib/vmxpi` and `/usr/local/include/vmxpi`
 - The disk image and the built `.deb` files are **not** included in this repo
   (`.gitignore`). Obtain the image from its official source; check its terms
   before redistributing any derived binaries.
+
+## Do not redistribute the built `.deb` files
+
+**Secondary distribution of the generated `.deb` packages is discouraged.**
+They contain binaries taken from a third-party image whose redistribution terms
+are unverified, plus bundled third-party code (pigpio, rpi_ws281x) whose notices
+are incomplete. Build the packages yourself from your own copy of the image
+instead of sharing or hosting the `.deb` files (releases, package repos, mirrors).
