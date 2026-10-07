@@ -13,7 +13,7 @@ ARCH=arm64
 MNT=/mnt/img
 WORK="$HOME/deb-build"
 OUTDIR="${OUTDIR:-$HERE/dist}"
-MAINT="VMX-pi HAL packager <donotusecheat915@naver.com>"
+MAINT="VMX-pi HAL packager"
 
 [ -f "$IMG" ] || { echo "Image not found: $IMG (set IMG=...)"; exit 1; }
 # Start sector of the last Linux (type 83) partition, instead of hardcoding it
