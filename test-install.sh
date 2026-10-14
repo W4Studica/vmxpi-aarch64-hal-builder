@@ -11,13 +11,13 @@ for img in "${IMAGES[@]}"; do
     set -e
     export DEBIAN_FRONTEND=noninteractive
     apt-get update -qq >/dev/null
-    apt-get install -y -qq /dist/vmxpi-hal_*.deb /dist/vmxpi-hal-dev_*.deb /dist/vmxpi-hal-examples_*.deb python3 g++ >/dev/null
+    apt-get install -y -qq /dist/vmxpi-hal_*.deb python3 g++ >/dev/null
     echo "[ldconfig]"; ldconfig -p | grep vmxpi
     echo "[ldd]";      ldd /usr/local/lib/vmxpi/libvmxpi_hal_cpp.so | grep -c "not found" || true
     echo "[python]";   python3 -c "import vmxpi_hal_python; print(\"import OK\")" 2>&1 | tail -1
     echo "[c++ link]"; printf "#include <vmxpi/VMXPi.h>\nint main(){return 0;}\n" > /tmp/t.cpp
                        g++ -std=c++14 /tmp/t.cpp -I/usr/local/include/vmxpi -L/usr/local/lib/vmxpi -lvmxpi_hal_cpp -o /tmp/t 2>&1 | tail -3 && echo "compile+link done"
-    echo "[remove]";   apt-get purge -y -qq vmxpi-hal-examples vmxpi-hal-dev vmxpi-hal >/dev/null && echo "purge OK"
+    echo "[remove]";   apt-get purge -y -qq vmxpi-hal >/dev/null && echo "purge OK"
   ' || rc=1
 done
 exit $rc

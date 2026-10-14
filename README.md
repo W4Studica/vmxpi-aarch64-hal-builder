@@ -1,25 +1,24 @@
 # vmxpi aarch64 hal builder
 
 Extracts the VMX-pi HAL from the Studica Ubuntu 22.04 / ROS2 Humble disk image
-(`/usr/local`) and packages it as arm64 `.deb` files, so it can be installed on
-other Debian/Ubuntu-based aarch64 distributions.
+(`/usr/local`) and packages it as one arm64 `.deb`, so it can be installed on
+other Debian/Ubuntu-based aarch64 distributions. Both partitioned `.iso` images
+and disk `.img` images are accepted; the image can also be set with `IMG=`.
 
 | Package | Contents |
 |---|---|
-| `vmxpi-hal` | runtime libs (C++, Python, Java, C#), `ld.so.conf.d` + Python `.pth` |
-| `vmxpi-hal-dev` | headers, static lib |
-| `vmxpi-hal-examples` | example sources |
+| `vmxpi-hal` | runtime libraries (C++, Python, Java, C#), headers, static libraries, example sources, `ld.so.conf.d`, and Python `.pth` |
 
 ## Usage (WSL / Linux, as root)
 
-Put the image next to the scripts (or set `IMG=`), then:
+Put either image next to the scripts (or set `IMG=` to its path), then:
 
 ```bash
-sudo bash build-deb.sh      # writes dist/*.deb   (env: IMG=..., VERSION=...)
+sudo bash build-deb.sh      # writes dist/vmxpi-hal_<version>_arm64.deb (env: IMG=..., VERSION=...)
 sudo bash test-install.sh   # installs them in arm64 containers (ubuntu:22.04, debian:12)
 ```
 
-Requires `dpkg-deb`, `fakeroot`, `sfdisk`, loop-mount support; the test needs Docker + qemu-user.
+Requires `dpkg-deb`, `fakeroot`, `sfdisk`, `file`, and read-only loop-mount support; the test needs Docker + qemu-user.
 Installed files land in `/usr/local/lib/vmxpi` and `/usr/local/include/vmxpi`
 (the HAL examples hardcode that path).
 

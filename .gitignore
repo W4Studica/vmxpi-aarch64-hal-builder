@@ -1,2 +1,4 @@
 *.iso
+*.img
+*.img.xz
 dist/
