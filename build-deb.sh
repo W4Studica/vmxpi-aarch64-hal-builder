@@ -1,19 +1,28 @@
 #!/bin/bash
 # Extract the VMX-pi HAL from a partitioned .iso/.img or a filesystem image and
 # package the complete /usr/local payload as one arm64 .deb.
-# Run inside WSL or Linux as root: bash build-deb.sh (env: IMG=..., VERSION=...)
+# Run inside WSL or Linux: bash build-deb.sh (env: IMG=..., SRC_DIR=..., VERSION=...)
 set -euo pipefail
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
 IMG="${IMG:-$HERE/Ubuntu_22_04_Ros2_Humble_Full_HAL.iso}"
+SRC_DIR="${SRC_DIR:-}"
 VERSION="${VERSION:-1.0~20240704}"
 ARCH=arm64
 OUTDIR="${OUTDIR:-$HERE/dist}"
 MAINT="VMX-pi HAL packager"
 
-[ "$(id -u)" -eq 0 ] || { echo "Run as root (for read-only loop mounts)." >&2; exit 1; }
-[ -f "$IMG" ] || { echo "Image not found: $IMG (set IMG=...)" >&2; exit 1; }
-for cmd in mount umount sfdisk dpkg-deb fakeroot awk file; do
+if [ -n "$SRC_DIR" ]; then
+  [ -d "$SRC_DIR" ] || { echo "Source directory not found: $SRC_DIR" >&2; exit 1; }
+  SRC_DIR="$(cd "$SRC_DIR" && pwd)"
+else
+  [ "$(id -u)" -eq 0 ] || { echo "Run as root to mount the image, or set SRC_DIR to a mounted /usr/local directory." >&2; exit 1; }
+  [ -f "$IMG" ] || { echo "Image not found: $IMG (set IMG=...)" >&2; exit 1; }
+  for cmd in mount umount sfdisk file; do
+    command -v "$cmd" >/dev/null 2>&1 || { echo "Required command not found: $cmd" >&2; exit 1; }
+  done
+fi
+for cmd in dpkg-deb fakeroot awk; do
   command -v "$cmd" >/dev/null 2>&1 || { echo "Required command not found: $cmd" >&2; exit 1; }
 done
 
@@ -55,20 +64,22 @@ try_mount_linux_partition() {
   return 1
 }
 
-SRC=""
-if try_mount_whole_image; then
-  SRC="$MNT/usr/local"
-else
-  TABLE="$(sfdisk -d "$IMG" 2>/dev/null || true)"
-  SECTOR_SIZE="$(awk -F'[: ]+' '/^sector-size:/ {print $2; exit}' <<<"$TABLE")"
-  SECTOR_SIZE="${SECTOR_SIZE:-512}"
-  while read -r start size; do
-    [ -n "$start" ] || continue
-    if try_mount_linux_partition "$start" "$size" "$SECTOR_SIZE"; then
-      SRC="$MNT/usr/local"
-      break
-    fi
-  done < <(awk -F'[=, ]+' '{u=toupper($0); if(u ~ /TYPE=(83|0FC63DAF-8483-4772-8E79-3D69D8477DE4|4F68BCE3-E8CD-4DB1-96E7-FBCAF984B709|B921B045-1DF0-41C3-AF44-4C6F280D3FAE|69DAD710-2CE4-4E3C-B16C-21A1D49ABED3)/) {s=""; z=""; for(i=1;i<=NF;i++){if($i=="start")s=$(i+1); if($i=="size")z=$(i+1)} if(s!="" && z!="") print s, z}}' <<<"$TABLE")
+SRC="$SRC_DIR"
+if [ -z "$SRC" ]; then
+  if try_mount_whole_image; then
+    SRC="$MNT/usr/local"
+  else
+    TABLE="$(sfdisk -d "$IMG" 2>/dev/null || true)"
+    SECTOR_SIZE="$(awk -F'[: ]+' '/^sector-size:/ {print $2; exit}' <<<"$TABLE")"
+    SECTOR_SIZE="${SECTOR_SIZE:-512}"
+    while read -r start size; do
+      [ -n "$start" ] || continue
+      if try_mount_linux_partition "$start" "$size" "$SECTOR_SIZE"; then
+        SRC="$MNT/usr/local"
+        break
+      fi
+    done < <(awk -F'[=, ]+' '{u=toupper($0); if(u ~ /TYPE=(83|0FC63DAF-8483-4772-8E79-3D69D8477DE4|4F68BCE3-E8CD-4DB1-96E7-FBCAF984B709|B921B045-1DF0-41C3-AF44-4C6F280D3FAE|69DAD710-2CE4-4E3C-B16C-21A1D49ABED3)/) {s=""; z=""; for(i=1;i<=NF;i++){if($i=="start")s=$(i+1); if($i=="size")z=$(i+1)} if(s!="" && z!="") print s, z}}' <<<"$TABLE")
+  fi
 fi
 [ -n "$SRC" ] || { echo "Could not find /usr/local/lib/vmxpi in $IMG (tried whole image and Linux partitions)." >&2; exit 1; }
 [ -d "$SRC/include/vmxpi" ] || { echo "HAL headers not found at $SRC/include/vmxpi" >&2; exit 1; }

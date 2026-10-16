@@ -18,6 +18,10 @@ sudo bash build-deb.sh      # writes dist/vmxpi-hal_<version>_arm64.deb (env: IM
 sudo bash test-install.sh   # installs them in arm64 containers (ubuntu:22.04, debian:12)
 ```
 
+If the image partition is already mounted at its `/usr/local` directory, set
+`SRC_DIR=/path/to/usr/local` and run `bash build-deb.sh` without root; the
+package staging uses `fakeroot`.
+
 Requires `dpkg-deb`, `fakeroot`, `sfdisk`, `file`, and read-only loop-mount support; the test needs Docker + qemu-user.
 Installed files land in `/usr/local/lib/vmxpi` and `/usr/local/include/vmxpi`
 (the HAL examples hardcode that path).
