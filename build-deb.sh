@@ -107,13 +107,22 @@ cat > "$DOC/copyright" <<'EOF'
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Comment: Unofficial repackaging of binaries, headers, and examples taken from a
  Studica VMX-pi image. The packager claims no copyright over the HAL itself.
- Files without an explicit notice upstream (some example sources and the
- headers TeddyRegisters.h / TeddyPIDRegisters.h) are believed to be covered by
- the same MIT terms as the rest of the HAL, but this is not stated upstream.
+ Some files carry Kauai Labs MIT notices. This does not establish licensing
+ for the complete extracted payload, unmarked files or bundled components.
+ No blanket redistribution permission is asserted by this package.
 
 Files: *
-Copyright: 2013-2022 Kauai Labs
-License: MIT
+Copyright: Various upstream authors, including Kauai Labs
+License: LicenseRef-Unverified-Image-Payload
+
+License: LicenseRef-Unverified-Image-Payload
+ This is an image-derived payload with mixed or unresolved licensing.
+ Original notices in individual files remain applicable. Unmarked examples,
+ headers, prebuilt libraries and bundled third-party code must not be assumed
+ to share a license. Resolve their terms before public redistribution.
+
+Comment: The following MIT text records Kauai Labs notices identifying
+ copyright 2013-2022. It is not a license grant for every file in the image.
 
 License: MIT
  Permission is hereby granted, free of charge, to any person obtaining a copy

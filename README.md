@@ -29,8 +29,10 @@ Installed files land in `/usr/local/lib/vmxpi` and `/usr/local/include/vmxpi`
 ## Licensing
 
 - **This repository's scripts**: MIT (see `LICENSE`).
-- **The HAL** (headers, libraries, examples) is by Kauai Labs under the MIT license;
-  the `.deb` files carry that notice in `/usr/share/doc/<package>/copyright`.
+- **The extracted HAL payload** is third-party material. Some files contain Kauai Labs
+  MIT notices; this does not establish MIT licensing for every header, library,
+  example or bundled component. The `.deb` records the unresolved scope in
+  `/usr/share/doc/vmxpi-hal/copyright`.
 - The HAL static library bundles third-party code (pigpio, rpi_ws281x). Their notices
   must be completed in `build-deb.sh` before public redistribution.
 - This is an **unofficial repackaging**, not affiliated with Kauai Labs or Studica.
